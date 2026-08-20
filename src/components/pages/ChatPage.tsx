@@ -67,8 +67,8 @@ export function ChatPage() {
         <p className="text-sm text-muted-foreground">Ask health questions in natural language</p>
       </div>
 
-      <Card className="flex-1 flex flex-col overflow-hidden">
-        <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+      <Card className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0 p-4">
           {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 mb-4">
