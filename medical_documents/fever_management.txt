@@ -1,0 +1,55 @@
+# Fever: Causes and Management
+
+## Overview
+Fever, also known as pyrexia, is a temporary increase in your body temperature, often due to an illness. A fever is generally considered to be a body temperature of 38°C (100.4°F) or higher.
+
+## Common Causes of Fever
+- Viral infections (common cold, flu, COVID-19)
+- Bacterial infections (strep throat, urinary tract infections, pneumonia)
+- Heat exhaustion
+- Inflammatory conditions (rheumatoid arthritis)
+- Certain medications (drug fever)
+- Vaccinations
+- Cancer
+- Autoimmune disorders
+
+## Fever Temperature Guide
+- Normal: 36.1°C - 37.2°C (97°F - 99°F)
+- Low-grade fever: 37.3°C - 38°C (99.1°F - 100.4°F)
+- Moderate fever: 38.1°C - 39°C (100.5°F - 102.2°F)
+- High fever: 39.1°C - 40°C (102.3°F - 104°F)
+- Very high fever: Above 40°C (104°F)
+
+## When to Seek Medical Attention
+
+### Adults - Seek medical care if:
+- Temperature is 39.4°C (103°F) or higher
+- Fever lasts more than 3 days
+- Fever is accompanied by severe headache, rash, sensitivity to light, stiff neck, confusion, persistent vomiting, difficulty breathing, chest pain, abdominal pain, or painful urination
+- Fever after recent travel to a malaria-endemic area
+
+### Children - Seek immediate medical care if:
+- Infants under 3 months with any fever (38°C/100.4°F or higher)
+- Children under 2 years with fever lasting more than 24 hours
+- Children over 2 years with fever lasting more than 3 days
+- Fever above 40°C (104°F) in any child
+- Fever accompanied by lethargy, irritability, difficulty breathing, rash, or seizure
+
+## General Fever Management
+- Rest and stay hydrated
+- Light clothing and comfortable environment
+- Over-the-counter antipyretics may help reduce fever (follow package instructions)
+- Lukewarm sponge bath (not cold water)
+- Monitor temperature regularly
+
+## When Fever May Be an Emergency
+Seek emergency medical attention for fever accompanied by:
+- Severe headache and stiff neck (meningitis signs)
+- Difficulty breathing
+- Chest pain
+- Seizures
+- Confusion or altered consciousness
+- Persistent vomiting
+- Skin rash that spreads rapidly
+
+Note: This information is for educational purposes only and does not replace professional medical advice.

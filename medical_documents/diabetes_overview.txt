@@ -1,0 +1,61 @@
+# Diabetes Mellitus - Overview
+
+## What is Diabetes?
+Diabetes mellitus is a metabolic disorder characterized by chronically high blood sugar (glucose) levels. It occurs when the body either does not produce enough insulin or cannot effectively use the insulin it produces.
+
+## Types of Diabetes
+
+### Type 1 Diabetes
+- Autoimmune condition where the body's immune system destroys insulin-producing beta cells in the pancreas
+- Usually diagnosed in children and young adults
+- Requires lifelong insulin therapy
+- Accounts for about 5-10% of diabetes cases
+
+### Type 2 Diabetes
+- Most common form (90-95% of cases)
+- Body becomes resistant to insulin or doesn't produce enough
+- Often associated with lifestyle factors
+- Can sometimes be managed with diet, exercise, and oral medications
+- Risk factors include obesity, physical inactivity, family history
+
+### Gestational Diabetes
+- Develops during pregnancy
+- Usually resolves after childbirth
+- Increases risk of developing Type 2 diabetes later
+
+## Common Symptoms
+- Increased thirst (polydipsia)
+- Frequent urination (polyuria)
+- Increased hunger (polyphagia)
+- Fatigue
+- Blurred vision
+- Slow-healing wounds
+- Unexplained weight loss (Type 1)
+- Tingling or numbness in hands/feet
+
+## Complications (Long-term)
+- Cardiovascular disease
+- Kidney damage (nephropathy)
+- Eye damage (retinopathy)
+- Nerve damage (neuropathy)
+- Foot damage
+- Skin conditions
+- Hearing impairment
+- Alzheimer's disease risk
+
+## General Management
+- Regular blood sugar monitoring
+- Healthy eating (balanced diet, portion control)
+- Regular physical activity
+- Medication as prescribed by a doctor
+- Regular check-ups with healthcare provider
+- Foot care
+- Eye examinations
+
+## Prevention (Type 2)
+- Maintain healthy body weight
+- Regular physical activity (at least 150 minutes/week moderate activity)
+- Healthy diet rich in whole grains, fruits, vegetables
+- Limit sugary beverages and refined carbohydrates
+
+Note: This information is for educational purposes only and does not replace professional medical advice. Always consult a qualified healthcare provider for diabetes management.
