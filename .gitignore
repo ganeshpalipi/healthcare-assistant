@@ -51,8 +51,32 @@ server.log
 # Uploads
 uploads/
 
-# Screenshots
-screenshot-*.png
-
 # Prisma
 prisma/migrations/
+
+# Skills (internal, not part of project)
+skills/
+
+# Agent screenshots & test artifacts
+step*.png
+screenshot-*.png
+chat-scroll-test.png
+
+# Download folder
+download/
+
+# Worklog
+worklog.md
+
+# Caddy (dev-only)
+Caddyfile
+
+# Examples & tests
+examples/
+tests/
+
+# Mini services (dev-only)
+mini-services/
+
+# Backend Python (separate deployment)
+backend/
