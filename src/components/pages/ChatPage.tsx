@@ -29,10 +29,13 @@ const RISK_COLORS: Record<string, string> = {
 export function ChatPage() {
   const { chatMessages, addChatMessage, isChatLoading, setChatLoading } = useAppStore();
   const [input, setInput] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
+    }
   }, [chatMessages, isChatLoading]);
 
   async function sendMessage(text?: string) {
@@ -65,7 +68,7 @@ export function ChatPage() {
       </div>
 
       <Card className="flex-1 flex flex-col overflow-hidden">
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
           {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 mb-4">
@@ -116,7 +119,6 @@ export function ChatPage() {
                   <div className="bg-muted rounded-2xl px-4 py-3"><Loader2 className="h-4 w-4 animate-spin text-emerald-600" /></div>
                 </div>
               )}
-              <div ref={bottomRef} />
             </div>
           )}
         </ScrollArea>
