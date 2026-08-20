@@ -54,7 +54,7 @@ export function DashboardPage() {
                 <s.icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{loading ? <Skeleton className="h-8 w-6" /> : s.value}</p>
+                {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-2xl font-bold">{s.value}</div>}
                 <p className="text-xs text-muted-foreground">{s.label}</p>
               </div>
             </CardContent>
