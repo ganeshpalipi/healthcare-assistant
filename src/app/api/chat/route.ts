@@ -1,102 +1,79 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ZAI from 'z-ai-web-dev-sdk';
 
-const HC_SYSTEM = `You are a knowledgeable and empathetic Healthcare Conversational Assistant. You provide general health information for EDUCATIONAL PURPOSES ONLY.
-
+const HC_SYSTEM = `You are a Healthcare Conversational Assistant for EDUCATIONAL PURPOSES ONLY.
 CRITICAL RULES:
-1. NEVER diagnose any condition. Say "Possible causes may include..." not "You have..."
-2. NEVER prescribe medication or recommend dosages.
-3. NEVER recommend stopping prescribed medication.
-4. ALWAYS recommend consulting a qualified healthcare provider.
-5. ALWAYS include a disclaimer that responses are educational only.
-6. For emergencies (chest pain, difficulty breathing, loss of consciousness, severe bleeding, stroke signs, suicidal thoughts), URGENTLY direct to emergency services (911/112/108).
-7. Be empathetic, clear, concise.
+1. NEVER diagnose. Say "Possible causes may include..." not "You have..."
+2. NEVER prescribe medication or dosages.
+3. ALWAYS recommend consulting a healthcare provider.
+4. For emergencies, direct to emergency services (911/112/108).
+5. Be empathetic, clear, concise.
+FORMATTING (MANDATORY):
+- Use ### for headings, - for lists, **bold** for emphasis.
+- Separate sections with blank lines.
+9. If unsure, say so.`;
 
-FORMATTING RULES (MANDATORY):
-- You MUST use proper Markdown formatting in EVERY response.
-- Use ### for section headings (e.g., ### Possible Causes, ### Suggestions, ### When to Seek Help).
-- Use - (hyphen) at the start of each line for ALL lists. NEVER write list items as bare text on separate lines.
-- Use **bold** for emphasis on key medical terms and important points.
-- Separate sections with a blank line.
-- Example correct format:
-  ### Possible Causes
-  - Tension or stress
-  - Dehydration
-  - Lack of sleep
+const EMERGENCY_KW = ['chest pain', 'difficulty breathing', "can't breathe", 'loss of consciousness', 'unconscious', 'severe bleeding', 'stroke', 'suicidal', 'suicide', 'self-harm', 'seizure', 'overdose', 'heart attack', 'anaphylaxis'];
 
-9. If unsure, say so honestly.`;
-
-const EMERGENCY_KEYWORDS = ['chest pain', 'difficulty breathing', "can't breathe", 'loss of consciousness', 'unconscious', 'severe bleeding', 'stroke', 'suicidal', 'suicide', 'want to die', 'self-harm', 'seizure', 'overdose', 'poisoning', 'heart attack', 'anaphylaxis'];
-
-function checkRisk(text: string): string {
-  const t = text.toLowerCase();
-  if (EMERGENCY_KEYWORDS.some(k => t.includes(k))) return 'urgent';
-  if (['high fever', 'blood in stool', 'blood in urine', 'coughing blood', 'severe abdominal pain'].some(k => t.includes(k))) return 'high';
-  if (['fever', 'headache', 'cough', 'sore throat', 'rash', 'nausea', 'vomiting', 'diarrhea', 'fatigue', 'dizziness'].some(k => t.includes(k))) return 'moderate';
+function checkRisk(t: string): string {
+  const l = t.toLowerCase();
+  if (EMERGENCY_KW.some(k => l.includes(k))) return 'urgent';
+  if (['high fever', 'blood in stool', 'blood in urine', 'coughing blood', 'severe abdominal pain'].some(k => l.includes(k))) return 'high';
+  if (['fever', 'headache', 'cough', 'sore throat', 'rash', 'nausea', 'vomiting', 'diarrhea', 'fatigue', 'dizziness'].some(k => l.includes(k))) return 'moderate';
   return 'low';
 }
 
-function isEmergency(text: string): boolean {
-  const t = text.toLowerCase();
-  return EMERGENCY_KEYWORDS.some(k => t.includes(k));
+const DISCLAIMER = 'This provides information for educational purposes only. It does NOT diagnose, prescribe, or replace professional medical advice. Always consult a qualified healthcare provider.';
+
+interface ChatEntry { id: string; question: string; answer: string; timestamp: string; sources: string[]; }
+if (typeof globalThis._chatHistory === 'undefined') globalThis._chatHistory = [] as ChatEntry[];
+
+async function callLLM(message: string): Promise<string> {
+  try {
+    const ZAI = (await import('z-ai-web-dev-sdk')).default;
+    const zai = await ZAI.create();
+    const c = await zai.chat.completions.create({ messages: [{ role: 'assistant', content: HC_SYSTEM }, { role: 'user', content: message }], thinking: { type: 'disabled' } });
+    return c.choices[0]?.message?.content || '';
+  } catch {}
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (apiKey) {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-4o-mini', messages: [{ role: 'system', content: HC_SYSTEM }, { role: 'user', content: message }], max_tokens: 1000, temperature: 0.7 }),
+      });
+      if (res.ok) { const d = await res.json(); return d.choices?.[0]?.message?.content || ''; }
+    } catch {}
+  }
+  return '';
 }
 
-const DISCLAIMER = 'This AI-powered healthcare assistant provides information for educational purposes only. It does NOT provide medical diagnoses, prescribe treatments, or replace professional medical advice. Always consult a qualified healthcare provider.';
-
-// Chat history stored in memory
-interface ChatEntry { id: string; question: string; answer: string; timestamp: string; sources: string[]; user_id?: string; }
-if (typeof globalThis._chatHistory === 'undefined') globalThis._chatHistory = [] as ChatEntry[];
+function fallback(msg: string, risk: string): string {
+  const t = msg.toLowerCase();
+  if (t.includes('headache')) return '### About Headaches\n\n### Possible Causes\n- **Tension headache** - Tight band feeling\n- **Migraine** - Throbbing, one side, nausea\n- **Dehydration** - Not enough water\n- **Eye strain** - Too much screen time\n- **Sinus congestion** - Pressure around forehead\n\n### Suggestions\n- Rest in a quiet, dark room\n- Stay hydrated\n- Cold/warm compress on forehead\n- OTC pain relief if appropriate\n\n### When to Seek Help\n- Sudden severe headache\n- Headache with fever and stiff neck\n- Headache after head injury\n\n*This is general information only. Consult a healthcare provider.*';
+  if (t.includes('fever')) return '### About Fever\n\n### Possible Causes\n- **Viral infections** - Cold, flu, COVID-19\n- **Bacterial infections** - Strep throat, UTI\n- **Heat exhaustion**\n\n### Suggestions\n- Rest and hydrate\n- OTC fever reducers (follow instructions)\n- Cool compress on forehead\n\n### When to Seek Help\n- Fever above 103°F (39.4°C)\n- Lasting more than 3 days\n- Difficulty breathing\n\n*This is general information only. Consult a healthcare provider.*';
+  if (t.includes('diabet')) return '### About Diabetes\n\n### Types\n- **Type 1** - No insulin production\n- **Type 2** - Insulin resistance (most common)\n\n### Key Management\n- Monitor blood sugar regularly\n- Balanced diet (limit sugars/carbs)\n- Exercise regularly (150 min/week)\n- Take prescribed medications\n\n### When to Seek Help\n- Very high/low blood sugar\n- Shaking, confusion, excessive thirst\n\n*This is general information only. Follow your doctor\'s plan.*';
+  if (t.includes('cold') || t.includes('flu') || t.includes('cough')) return '### Cold & Flu\n\n### Cold Symptoms\n- Runny nose, sneezing, sore throat, mild cough\n\n### Flu Symptoms\n- High fever, body aches, fatigue, severe cough\n\n### Suggestions\n- Rest, warm fluids, OTC medicine\n- Salt water gargle for sore throat\n- Use a humidifier\n\n### When to Seek Help\n- Difficulty breathing\n- Fever above 103°F\n- Symptoms lasting 10+ days\n\n*This is general information only.*';
+  if (risk === 'high') return '### ⚠️ Important\n\nYour symptoms may require **prompt medical attention**.\n\n- Consult a healthcare provider soon\n- Do not ignore persistent/worsening symptoms\n\n*Always seek professional medical advice.*';
+  return '### HealthAssist AI\n\nThank you for your question. I provide general health information.\n\n### How I Can Help\n- **Describe symptoms** for guidance\n- **Ask about health topics**\n- **Use Medicine Info page** for drug details\n\n*To enable AI responses, add OPENAI_API_KEY to .env*\n\n*This is educational only. Always consult a healthcare provider.*';
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { message } = await req.json();
     if (!message?.trim()) return NextResponse.json({ detail: 'Message cannot be empty' }, { status: 400 });
-
     const risk_level = checkRisk(message);
-
-    // Emergency check
-    if (isEmergency(message)) {
-      const emergencyResp = `⚠️ **EMERGENCY DETECTED** ⚠️\n\nBased on what you've described, you may be experiencing a **medical emergency**. Please take immediate action:\n\n1. **Call your local emergency number** (911 in the US, 112 in Europe, 108 in India) **right now**.\n2. Do NOT drive yourself to the hospital if you are alone.\n3. If someone is with you, ask them to call for help.\n4. If you have emergency medication (e.g., nitroglycerin, EpiPen), use it as directed.\n\n**This AI assistant cannot provide emergency care. Please seek immediate medical attention.**`;
-      const entry: ChatEntry = { id: `ch-${Date.now()}`, question: message, answer: emergencyResp, timestamp: new Date().toISOString(), sources: [] };
-      (globalThis._chatHistory as ChatEntry[]).unshift(entry);
-      return NextResponse.json({ answer: emergencyResp, sources: [], risk_level: 'urgent', disclaimer: DISCLAIMER });
+    if (EMERGENCY_KW.some(k => message.toLowerCase().includes(k))) {
+      const r = '⚠️ **EMERGENCY DETECTED** ⚠️\n\nCall your emergency number (911/112/108) **now**.\n\nDo not drive yourself. If someone is with you, ask them to call for help.';
+      const e: ChatEntry = { id: `ch-${Date.now()}`, question: message, answer: r, timestamp: new Date().toISOString(), sources: [] };
+      (globalThis._chatHistory as ChatEntry[]).unshift(e);
+      return NextResponse.json({ answer: r, sources: [], risk_level: 'urgent', disclaimer: DISCLAIMER });
     }
-
-    let answer = '';
-    try {
-      const zai = await ZAI.create();
-      const completion = await zai.chat.completions.create({
-        messages: [
-          { role: 'assistant', content: HC_SYSTEM },
-          { role: 'user', content: message },
-        ],
-        thinking: { type: 'disabled' },
-      });
-      answer = completion.choices[0]?.message?.content || '';
-    } catch {
-      answer = generateFallback(message, risk_level);
-    }
-
-    const sources: string[] = [];
-    const entry: ChatEntry = { id: `ch-${Date.now()}`, question: message, answer, timestamp: new Date().toISOString(), sources };
-    (globalThis._chatHistory as ChatEntry[]).unshift(entry);
+    const answer = (await callLLM(message)).trim() || fallback(message, risk_level);
+    const e: ChatEntry = { id: `ch-${Date.now()}`, question: message, answer, timestamp: new Date().toISOString(), sources: [] };
+    (globalThis._chatHistory as ChatEntry[]).unshift(e);
     if ((globalThis._chatHistory as ChatEntry[]).length > 100) (globalThis._chatHistory as ChatEntry[]).pop();
-
-    return NextResponse.json({ answer, sources, risk_level, disclaimer: DISCLAIMER });
-  } catch {
-    return NextResponse.json({ detail: 'Failed to process message' }, { status: 500 });
-  }
+    return NextResponse.json({ answer, sources: [], risk_level, disclaimer: DISCLAIMER });
+  } catch { return NextResponse.json({ detail: 'Failed' }, { status: 500 }); }
 }
 
-export async function GET() {
-  return NextResponse.json({ history: (globalThis._chatHistory as ChatEntry[]) || [] });
-}
-
-function generateFallback(message: string, risk: string): string {
-  const parts = ['Thank you for your question. Based on the information provided:'];
-  if (risk === 'high') parts.push('Your description suggests symptoms that may require **prompt medical attention**. I strongly recommend consulting a healthcare provider as soon as possible.');
-  else if (risk === 'moderate') parts.push('Your symptoms are relatively common and may resolve on their own. However, if symptoms persist for more than a few days or worsen, please see a doctor.');
-  else parts.push('This appears to be a general health query. Monitor your symptoms, maintain good hydration and rest, and consider over-the-counter medications for mild symptoms following package instructions.');
-  parts.push('\n**Important:** This is general information only and does not replace professional medical advice. Please consult a qualified healthcare provider.');
-  return parts.join('\n\n');
-}
+export async function GET() { return NextResponse.json({ history: (globalThis._chatHistory as ChatEntry[]) || [] }); }
