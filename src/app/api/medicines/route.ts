@@ -24,15 +24,8 @@ function searchLocalDB(query: string): string | null {
   return null;
 }
 
-export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams.get('query');
-  if (!query) return NextResponse.json({ detail: 'Query parameter required' }, { status: 400 });
-
-  const localResult = searchLocalDB(query);
-  if (localResult) return NextResponse.json({ medicine: query, information: localResult, disclaimer: DISCLAIMER, source: 'Local medicine database' });
-
+async function callLLM(query: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (apiKey) {
     try {
       const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
       const res = await fetch('https://api.openai.com/v1/chat/completions', {

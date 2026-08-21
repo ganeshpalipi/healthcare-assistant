@@ -28,14 +28,8 @@ interface ChatEntry { id: string; question: string; answer: string; timestamp: s
 if (typeof globalThis._chatHistory === 'undefined') globalThis._chatHistory = [] as ChatEntry[];
 
 async function callLLM(message: string): Promise<string> {
-  try {
-    const ZAI = (await import('z-ai-web-dev-sdk')).default;
-    const zai = await ZAI.create();
-    const c = await zai.chat.completions.create({ messages: [{ role: 'assistant', content: HC_SYSTEM }, { role: 'user', content: message }], thinking: { type: 'disabled' } });
-    return c.choices[0]?.message?.content || '';
-  } catch {}
+  // Try OpenAI API
   const apiKey = process.env.OPENAI_API_KEY;
-  if (apiKey) {
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
